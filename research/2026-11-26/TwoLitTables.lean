@@ -261,4 +261,173 @@ theorem exact_budget_solution (C : Circuit) (t : Nat × Nat) (ht : t ∈ targets
 
 #print axioms exact_budget_solution
 #print axioms pad_to_budget
+
+namespace Normalization
+
+/- Normalization primitives and proofs from open-goat/pequalnp-proofs, Apache-2.0,
+   L_meta_10422.lean at 04bd0cdce6413f75e63b6aa2a79097db6c65069c. -/
+def trimInputs (cap : ℕ) (xs : List ℕ) : List ℕ :=
+  xs.filter (fun i => decide (i < cap))
+
+def gate (cap : ℕ) (g : Gate) : Gate :=
+  match g.op with
+  | .and => if ∀ i ∈ g.inputs, i < cap then g else ⟨.or,[]⟩
+  | .or => ⟨.or,trimInputs cap g.inputs⟩
+  | .not => ⟨.not,trimInputs cap (g.inputs.take 1)⟩
+  | _ => ⟨.or,[]⟩
+
+def gates (cap : ℕ) : List Gate → List Gate
+  | [] => []
+  | g :: gs => gate cap g :: gates (cap+1) gs
+
+def norm (n : ℕ) (C : Circuit) : Circuit := ⟨gates n C.gates,C.output⟩
+
+def allowed (g : Gate) : Prop :=
+  g.op ∈ ({GateOp.and,GateOp.or,GateOp.not} : Set GateOp) ∧ g.inputs.length ≤ 2
+
+def legal (cap : ℕ) (g : Gate) : Prop :=
+  allowed g ∧ (∀ i ∈ g.inputs, i < cap) ∧ (g.op=.not → g.inputs.length ≤ 1)
+
+theorem trimInputs_length (cap : ℕ) (xs : List ℕ) :
+    (trimInputs cap xs).length ≤ xs.length := List.length_filter_le _ _
+
+theorem trimInputs_bound {cap : ℕ} {xs : List ℕ} {i : ℕ} (mem : i∈trimInputs cap xs) :
+    i<cap := of_decide_eq_true (List.mem_filter.mp mem).2
+
+theorem gate_legal (cap : ℕ) (g : Gate) (small : g.inputs.length≤2) : legal cap (gate cap g) := by
+  cases g with
+  | mk op xs =>
+    change xs.length≤2 at small
+    cases op with
+    | and =>
+      change legal cap (if ∀ i∈xs, i<cap then (⟨.and,xs⟩ : Gate) else ⟨.or,[]⟩)
+      split
+      · rename_i good
+        exact ⟨⟨by simp,small⟩,good,by simp⟩
+      · simp [legal,allowed]
+    | or =>
+      refine ⟨⟨by simp [gate],(trimInputs_length _ _).trans small⟩,
+        fun _ => trimInputs_bound,by simp [gate]⟩
+    | not =>
+      have len : (trimInputs cap (xs.take 1)).length≤1 :=
+        (trimInputs_length _ _).trans (by simp [List.length_take])
+      exact ⟨⟨by simp [gate],len.trans (by decide)⟩,
+        fun _ => trimInputs_bound,fun _ => len⟩
+    | mod m => simp [gate,legal,allowed]
+    | maj => simp [gate,legal,allowed]
+
+def gateValue (w : List Bool) (g : Gate) : Bool :=
+  g.op.eval (g.inputs.map (fun i => w.getD i false))
+
+theorem gate_value (w : List Bool) (g : Gate) (good : allowed g) :
+    gateValue w (gate w.length g) = gateValue w g := by
+  rcases g with ⟨op,xs⟩
+  have hop := good.1
+  simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hop
+  change op = .and ∨ op = .or ∨ op = .not at hop
+  rcases hop with rfl | rfl | rfl
+  · change gateValue w
+      (if ∀ i∈xs, i<w.length then (⟨.and,xs⟩ : Gate) else ⟨.or,[]⟩) =
+      gateValue w ⟨.and,xs⟩
+    split
+    · rfl
+    · rename_i bad
+      change false = (xs.map fun i => w.getD i false).all id
+      symm
+      apply Bool.eq_false_iff.mpr
+      intro on
+      apply bad
+      intro i mem
+      by_contra beyond
+      have ix := List.all_eq_true.mp on (w.getD i false) (List.mem_map.mpr ⟨i,mem,rfl⟩)
+      have miss : w.getD i false=false := List.getD_eq_default _ _ (by omega)
+      rw [id_eq,miss] at ix
+      contradiction
+  · change ((trimInputs w.length xs).map fun i => w.getD i false).any id =
+      (xs.map fun i => w.getD i false).any id
+    apply Bool.eq_iff_iff.mpr
+    simp only [List.any_map,List.any_eq_true,Function.comp_apply,id_eq,trimInputs,
+      List.mem_filter,decide_eq_true_eq]
+    constructor
+    · rintro ⟨i,⟨mem,_⟩,val⟩
+      exact ⟨i,mem,val⟩
+    · rintro ⟨i,mem,val⟩
+      refine ⟨i,⟨mem,?_⟩,val⟩
+      by_contra beyond
+      have miss : w.getD i false=false := List.getD_eq_default _ _ (by omega)
+      rw [miss] at val
+      contradiction
+  · cases xs with
+    | nil => rfl
+    | cons i xs =>
+      by_cases keep : i<w.length
+      · simp [gateValue,gate,trimInputs,GateOp.eval,keep]
+      · have miss : w.getD i false=false := List.getD_eq_default _ _ (by omega)
+        simp [gateValue,gate,trimInputs,GateOp.eval,keep]
+
+theorem gates_length (cap : ℕ) (gs : List Gate) : (gates cap gs).length=gs.length := by
+  induction gs generalizing cap with
+  | nil => rfl
+  | cons g gs ih => simp [gates,ih]
+
+theorem gates_get (cap : ℕ) (gs : List Gate) (j : ℕ) (hj : j<gs.length) :
+    (gates cap gs)[j]'(by rwa [gates_length]) = gate (cap+j) gs[j] := by
+  induction gs generalizing cap j with
+  | nil => simp at hj
+  | cons g gs ih =>
+    cases j with
+    | zero => simp [gates]
+    | succ j =>
+      simpa [gates,Nat.add_assoc,Nat.add_comm,Nat.add_left_comm] using
+        (ih (cap+1) j (Nat.lt_of_succ_lt_succ hj))
+
+def run (gs : List Gate) (w : List Bool) : List Bool :=
+  gs.foldl (fun v g => v ++ [gateValue v g]) w
+
+theorem run_length (gs : List Gate) (w : List Bool) : (run gs w).length=w.length+gs.length := by
+  induction gs generalizing w with
+  | nil => simp [run]
+  | cons g gs ih =>
+    change (run gs (w ++ [gateValue w g])).length = _
+    rw [ih]
+    simp [Nat.add_comm,Nat.add_left_comm]
+
+theorem gates_run (gs : List Gate) (good : ∀ g∈gs, allowed g) (w : List Bool) :
+    run (gates w.length gs) w=run gs w := by
+  induction gs generalizing w with
+  | nil => rfl
+  | cons g gs ih =>
+    have valid := good g (by simp)
+    change run (gates (w.length+1) gs) (w ++ [gateValue w (gate w.length g)]) =
+      run gs (w ++ [gateValue w g])
+    rw [gate_value _ _ valid]
+    have len : (w++[gateValue w g]).length=w.length+1 := by simp
+    rw [←len]
+    exact ih (fun g' mem => good g' (List.mem_cons_of_mem _ mem)) _
+
+
+/-- Exact-budget form with no references to a future or nonexistent wire.
+Constants are still allowed in the form of gates with empty input lists. -/
+theorem exact_budget_legal (C : Circuit) (t : Nat × Nat) (ht : t ∈ targets)
+    (solves : ∀ r, C.eval (List.ofFn (packedInput r)) = t.2.testBit r.val)
+    (budget : Nat) (small : C.size ≤ budget) (good : ∀ g ∈ C.gates, allowed g) :
+    ∃ D : Circuit, D.size = budget ∧ D.output + 1 = 6 + budget ∧
+      (∀ j (hj : j < D.gates.length), legal (6+j) D.gates[j]) ∧
+      ∀ x : List Bool, x.length = 6 → D.eval x = C.eval x := by
+  have copyOK (i : Nat) : allowed (copyWire i) := by simp [allowed,copyWire]
+  obtain ⟨E, size, last, ops, eq⟩ := exact_budget_solution C t ht solves budget small allowed good copyOK
+  let D := norm 6 E
+  have len : D.gates.length = E.gates.length := gates_length _ _
+  refine ⟨D,len.trans size,last,?_,?_⟩
+  · intro j hj
+    have hj' : j < E.gates.length := by rwa [←len]
+    have hwire : D.gates[j] = gate (6+j) E.gates[j] := gates_get 6 E.gates j hj'
+    rw [hwire]
+    exact gate_legal _ _ (ops _ (List.getElem_mem hj')).2
+  · intro x hx
+    rw [←eq x hx]
+    change (run (gates 6 E.gates) x).getD E.output false = (run E.gates x).getD E.output false
+    rw [←hx,gates_run _ ops]
+#print axioms exact_budget_legal
+end Normalization
 end Alexrollo64.TwoLitTables
