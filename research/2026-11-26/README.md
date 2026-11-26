@@ -150,3 +150,7 @@ Les tables publiques permettent de régénérer les CNF et les certificats avec 
 ```
 
 Sur L-meta-23736, la synthèse directe par choix de porte a aussi atteint sa limite de 150 secondes sans verdict. La recherche avec multiplexeurs a été interrompue sans verdict. La réservation a été rendue avec le motif out_of_time. La référence Lean à onze portes reste un contrôle positif ; l’objectif à dix portes demeure non démontré. Le bilan des preuves complètes soumises et acceptées reste zéro.
+
+## Sorties des circuits à six entrées
+
+Le 26 novembre, Lean 4.36.0 a vérifié la correspondance entre les 36 paires ordonnées et les 21 configurations du modèle SAT. Sur ces configurations, les tables des unités L-meta-22882, L-meta-24212, L-meta-24403 et L-meta-22764 exigent respectivement 4, 5, 6 et 5 coordonnées. Pour chacune, la sortie de tout circuit correct doit désigner une porte existante. Le théorème `output_is_gate` exclut à la fois les six fils d’entrée et les indices au-delà du dernier fil. Son énoncé permet une porte intermédiaire. Il reste à relier un circuit admissible au codage SAT complet en préservant le budget de portes. [Preuve auxiliaire vérifiée](TwoLitTables.lean)
