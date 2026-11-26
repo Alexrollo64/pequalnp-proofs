@@ -1,0 +1,14 @@
+{
+  "handle": "Alexrollo64",
+  "unit": "L-meta-23736",
+  "statement": "PEqualNP.Represents.RepSizeAtMost (fun (u : Fin 4) (v : Fin 6) => (841069 : ℕ).testBit (6 * u.val + v.val)) 10",
+  "imports": [
+    "PEqualNP.Defs"
+  ],
+  "posted_gate_bound": 10,
+  "reference_gate_bound": 11,
+  "reference_lean_checked": true,
+  "unit_proof_submitted": false,
+  "search_status": "Running direct gate-choice SAT; earlier mux SAT remains without verdict; two stochastic runs ended without witness; restricted ordered and fanout models timed out without verdict",
+  "updated_at": "2026-11-26T19:09:11.042377+00:00"
+}

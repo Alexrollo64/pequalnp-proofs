@@ -6,11 +6,11 @@ Ce dossier rassemble le travail de recherche effectué pour Alexrollo64 sur les 
 | --- | --- |
 | Preuves complètes d’unités soumises au projet pendant ces sessions | 0 |
 | Preuves acceptées par le vérificateur du projet pendant ces sessions | 0 |
-| Fichiers de résultats Lean vérifiés localement | 4 |
+| Fichiers de résultats Lean vérifiés localement | 5 |
 | Formules SAT restreintes exclues avec un contrôle DRAT indépendant | 21 |
 | Circuits de référence 4 × 5 vérifiés sur leurs vingt entrées | 14 |
 | Recherche sur L-meta-21111 | Réservation rendue après essais sans témoin |
-| Unité actuellement travaillée | L-meta-18919, tranche 6 sur 16 |
+| Unité actuellement travaillée | L-meta-23736, graphe 4 × 6 |
 
 ## Encodeur sur seize entrées
 
@@ -73,7 +73,7 @@ Une soumission de preuve utilise une branche dédiée, un commit et le fichier L
 
 Les trois recherches SAT prolongées sur L-meta-21111 ont été interrompues sans verdict. Une seconde traduction SAT a atteint sa limite de 120 secondes sans verdict. Une recherche de deux supports partagés a testé 5 000 configurations. Quatre recherches stochastiques, aux budgets de 8 à 11 portes, ont terminé 320 millions d’itérations au total en prenant en compte les permutations des entrées. Le contrôle positif retrouve le circuit de référence à onze portes. Les essais sont consignés avec leurs paramètres et leurs issues. [Relevé de la session](circuits/experiments/session-2.json)
 
-La recherche actuelle porte sur le produit de deux matrices booléennes 3 × 3. Le bureau a attribué L-meta-18919, tranche 6 sur 16. Cette tranche impose un circuit d’au plus 44 portes, exactement une porte NON et de 23 à 33 portes ET. Les neuf sorties sont celles du produit booléen. Le programme cherche sur 512 entrées d’essai et contrôle tout candidat qui passe ces essais sur les 262 144 entrées possibles. La référence connue à 45 portes a passé ce contrôle complet. La tranche reste en cours de recherche. [Données de l’attribution](circuits/active-search.json) · [Programme de recherche](circuits/matrix3-search.cpp)
+La recherche sur L-meta-18919 porte sur le produit de deux matrices booléennes 3 × 3. Le bureau a attribué L-meta-18919, tranche 6 sur 16. Cette tranche impose un circuit d’au plus 44 portes, exactement une porte NON et de 23 à 33 portes ET. Les neuf sorties sont celles du produit booléen. Le programme cherche sur 512 entrées d’essai et contrôle tout candidat qui passe ces essais sur les 262 144 entrées possibles. La référence connue à 45 portes a passé ce contrôle complet. La réservation a été rendue après ces essais avec le motif out_of_time. [Données de l’attribution](circuits/active-search.json) · [Programme de recherche](circuits/matrix3-search.cpp)
 
 Les commandes suivantes, exécutées depuis ce dossier, compilent le programme, vérifient la référence puis lancent quinze minutes de recherche dans la tranche attribuée.
 
@@ -123,3 +123,15 @@ c++ -O3 -std=c++17 circuits/evolve-exact-window.cpp -o /tmp/pequalnp-window
 ```
 
 Le générateur de table et l’optimiseur C++ n’ont besoin ni de PySAT ni d’un accès réseau. Tout éventuel témoin doit encore être assemblé et contrôlé sur les 262 144 entrées de la matrice entière, puis passer la preuve Lean et les contrôles du projet.
+
+
+## Unité L-meta-23736 : graphe 4 × 6
+
+L’énoncé attribué demande dix portes AND/OR. Une construction de référence à onze portes a été reconstruite, vérifiée sur les 24 entrées permises puis vérifiée dans Lean 4.36.0. La synthèse directe par choix de porte retrouve ce contrôle positif lorsqu’on lui impose les choix du témoin connu. La recherche à dix portes continue sans témoin vérifié à ce checkpoint. [Énoncé et statut](circuits/current-unit.json) · [Référence Lean à onze portes](L_meta_23736_reference.lean) · [Synthèse directe](circuits/pair-synth.py)
+
+```sh
+/tmp/pequalnp-research-env/bin/python circuits/pair-synth.py \
+  circuits/L-meta-23736-table.json /tmp/pequalnp-23736-candidate.txt
+```
+
+Cette recherche sélectionne deux fils antérieurs distincts et une opération AND/OR pour chaque porte. Elle écarte les portes sur entrées primaires qui sont constantes ou recopient un de leurs parents, et exige que chaque porte intermédiaire soit lue. Les options de tri et de lecture de toutes les entrées ajoutent d’autres restrictions lorsqu’elles figurent dans le fichier de paramètres. Un témoin reste contrôlé sur toutes les entrées puis dans Lean ; une absence de témoin ou un verdict UNSAT de ce modèle n’est pas une réfutation formelle de l’énoncé.
