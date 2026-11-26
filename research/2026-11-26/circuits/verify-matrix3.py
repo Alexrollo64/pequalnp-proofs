@@ -53,6 +53,8 @@ def verify(circuit):
                 gate_counts=counts,within_shard_6=(size <= 44 and counts['not'] == 1
                     and 23 <= counts['and'] <= 33),
                 incorrect_output_values=total_errors,
+                first_wrong_input=((wrong_assignments & -wrong_assignments).bit_length()-1
+                    if wrong_assignments else None),
                 assignments_with_an_error=bin(wrong_assignments).count('1'),outputs=outputs)
 
 

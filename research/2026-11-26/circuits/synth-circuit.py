@@ -8,10 +8,13 @@ from pysat.solvers import Solver
 
 
 def synthesize(input_masks, cases, target, budget, allow_not=False, ordered=False,
-               hint=None, repair_radius=None, minimal=False, fanout=False):
+               hint=None, repair_radius=None, minimal=False, fanout=False,
+               not_count=None, min_and=None, max_and=None, solver_name='cadical195',
+               output_wires=None, certificate_prefix=None):
     ids = IDPool()
     formula = CNF()
     input_count = len(input_masks)
+    multiple_outputs = isinstance(target, list)
     values = {}
     for wire, mask in enumerate(input_masks):
         for case in range(cases):
@@ -51,10 +54,35 @@ def synthesize(input_masks, cases, target, budget, allow_not=False, ordered=Fals
             if allow_not:
                 not_op = operation[2]
                 formula.extend([[-not_op, -z, -a], [-not_op, z, a]])
-        if gate == budget - 1:
+        if gate == budget - 1 and not multiple_outputs:
             for case in range(cases):
                 z = values[wire, case]
                 formula.append([z if target >> case & 1 else -z])
+    output_selectors = []
+    if multiple_outputs:
+        for output, expected in enumerate(target):
+            selectors = [ids.id(('output', output, wire))
+                         for wire in range(input_count + budget)]
+            output_selectors.append(selectors)
+            formula.extend(CardEnc.equals(selectors, 1, vpool=ids,
+                                          encoding=EncType.seqcounter).clauses)
+            if output_wires is not None and output_wires[output] is not None:
+                formula.append([selectors[output_wires[output]]])
+            for wire, selector in enumerate(selectors):
+                for case in range(cases):
+                    value = values[wire, case]
+                    formula.append([-selector, value if expected >> case & 1 else -value])
+    if not_count is not None:
+        negations = [ops[2] for _, _, ops in choices if len(ops) == 3]
+        formula.extend(CardEnc.equals(negations, not_count, vpool=ids,
+                                      encoding=EncType.seqcounter).clauses)
+    conjunctions = [ops[0] for _, _, ops in choices]
+    if min_and is not None:
+        formula.extend(CardEnc.atleast(conjunctions, min_and, vpool=ids,
+                                       encoding=EncType.seqcounter).clauses)
+    if max_and is not None and max_and < budget:
+        formula.extend(CardEnc.atmost(conjunctions, max_and, vpool=ids,
+                                      encoding=EncType.seqcounter).clauses)
     if ordered:
         for gate in range(1, budget):
             old_left, old_right, _ = choices[gate - 1]
@@ -68,8 +96,10 @@ def synthesize(input_masks, cases, target, budget, allow_not=False, ordered=Fals
                                         -old_left[old_a], -left[a]])
         for gate in range(budget - 1):
             wire = input_count + gate
-            formula.append([selector for left, right, _ in choices[gate + 1:]
-                            for selector in (left[wire], right[wire])])
+            uses = [selector for left, right, _ in choices[gate + 1:]
+                    for selector in (left[wire], right[wire])]
+            uses.extend(selectors[wire] for selectors in output_selectors)
+            formula.append(uses)
     phases = []
     changes = []
     if minimal:
@@ -121,10 +151,17 @@ def synthesize(input_masks, cases, target, budget, allow_not=False, ordered=Fals
             formula.extend(CardEnc.atmost(changes, repair_radius, vpool=ids,
                                          encoding=EncType.seqcounter).clauses)
     print('CNF', formula.nv, len(formula.clauses), flush=True)
-    with Solver(name='cadical195', bootstrap_with=formula) as solver:
+    if certificate_prefix is not None:
+        formula.to_file(str(certificate_prefix) + '.cnf')
+    with Solver(name=solver_name, bootstrap_with=formula,
+                with_proof=certificate_prefix is not None) as solver:
         if phases:
             solver.set_phases(phases)
         if not solver.solve():
+            if certificate_prefix is not None:
+                proof = solver.get_proof()
+                assert proof and proof[-1].strip() == '0'
+                Path(str(certificate_prefix) + '.drat').write_text('\n'.join(proof) + '\n')
             print('UNSAT', flush=True)
             return None
         model = set(solver.get_model())
@@ -138,6 +175,12 @@ def synthesize(input_masks, cases, target, budget, allow_not=False, ordered=Fals
         value = (masks[a] & masks[b]) if op == 0 else ((masks[a] | masks[b]) if op == 1 else ((1 << cases) - 1) ^ masks[a])
         gates.append((len(masks), gate, a, b))
         masks.append(value)
+    if multiple_outputs:
+        outputs = [next(wire for wire, selected in enumerate(selectors) if selected in model)
+                   for selectors in output_selectors]
+        assert [masks[wire] for wire in outputs] == target
+        print('SAT', json.dumps({'gates': gates, 'outputs': outputs}), flush=True)
+        return {'gates': gates, 'outputs': outputs}
     assert masks[-1] == target
     print('SAT', json.dumps(gates), flush=True)
     return gates
@@ -151,6 +194,9 @@ if __name__ == '__main__':
     table = json.loads(Path(args.table).read_text())
     gates = synthesize(**table)
     if gates is not None:
-        lines = [' '.join(map(str, gate)) for gate in gates]
-        lines.append('out ' + str(gates[-1][0]))
-        Path(args.output).write_text('\n'.join(lines) + '\n')
+        if isinstance(gates, dict):
+            Path(args.output).write_text(json.dumps(gates) + '\n')
+        else:
+            lines = [' '.join(map(str, gate)) for gate in gates]
+            lines.append('out ' + str(gates[-1][0]))
+            Path(args.output).write_text('\n'.join(lines) + '\n')

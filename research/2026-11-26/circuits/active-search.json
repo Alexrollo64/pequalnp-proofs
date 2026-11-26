@@ -6,7 +6,7 @@
   "kind": "search",
   "shard": 6,
   "total_shards": 16,
-  "status": "leased_in_progress",
+  "status": "Partial search, no verified 44-gate witness, full shard not exhausted",
   "required_max_gates": 44,
   "required_not_gates": 1,
   "required_and_gates_min": 23,
@@ -19,7 +19,7 @@
   "program_sha256": "97f56b60a28958093a2e2fa4f8dbace322ce0858fa3d420d63816220c73207f9",
   "shard_exhausted": false,
   "complete_proof_submitted": false,
-  "statement": "∃ (C : PEqualNP.CircuitLowerBounds.Circuit) (o : Fin 9 → ℕ), PEqualNP.MetaComplexity.FanInTwo C ∧ C.size ≤ 44 ∧ ∀ x : Fin 18 → Bool, (C.wires (List.ofFn x)).getD (o 0) false = (x 0 && x 9 || x 1 && x 12 || x 2 && x 15) ∧ (C.wires (List.ofFn x)).getD (o 1) false = (x 0 && x 10 || x 1 && x 13 || x 2 && x 16) ∧ (C.wires (List.ofFn x)).getD (o 2) false = (x 0 && x 11 || x 1 && x 14 || x 2 && x 17) ∧ (C.wires (List.ofFn x)).getD (o 3) false = (x 3 && x 9 || x 4 && x 12 || x 5 && x 15) ∧ (C.wires (List.ofFn x)).getD (o 4) false = (x 3 && x 10 || x 4 && x 13 || x 5 && x 16) ∧ (C.wires (List.ofFn x)).getD (o 5) false = (x 3 && x 11 || x 4 && x 14 || x 5 && x 17) ∧ (C.wires (List.ofFn x)).getD (o 6) false = (x 6 && x 9 || x 7 && x 12 || x 8 && x 15) ∧ (C.wires (List.ofFn x)).getD (o 7) false = (x 6 && x 10 || x 7 && x 13 || x 8 && x 16) ∧ (C.wires (List.ofFn x)).getD (o 8) false = (x 6 && x 11 || x 7 && x 14 || x 8 && x 17)",
+  "statement": "\u2203 (C : PEqualNP.CircuitLowerBounds.Circuit) (o : Fin 9 \u2192 \u2115), PEqualNP.MetaComplexity.FanInTwo C \u2227 C.size \u2264 44 \u2227 \u2200 x : Fin 18 \u2192 Bool, (C.wires (List.ofFn x)).getD (o 0) false = (x 0 && x 9 || x 1 && x 12 || x 2 && x 15) \u2227 (C.wires (List.ofFn x)).getD (o 1) false = (x 0 && x 10 || x 1 && x 13 || x 2 && x 16) \u2227 (C.wires (List.ofFn x)).getD (o 2) false = (x 0 && x 11 || x 1 && x 14 || x 2 && x 17) \u2227 (C.wires (List.ofFn x)).getD (o 3) false = (x 3 && x 9 || x 4 && x 12 || x 5 && x 15) \u2227 (C.wires (List.ofFn x)).getD (o 4) false = (x 3 && x 10 || x 4 && x 13 || x 5 && x 16) \u2227 (C.wires (List.ofFn x)).getD (o 5) false = (x 3 && x 11 || x 4 && x 14 || x 5 && x 17) \u2227 (C.wires (List.ofFn x)).getD (o 6) false = (x 6 && x 9 || x 7 && x 12 || x 8 && x 15) \u2227 (C.wires (List.ofFn x)).getD (o 7) false = (x 6 && x 10 || x 7 && x 13 || x 8 && x 16) \u2227 (C.wires (List.ofFn x)).getD (o 8) false = (x 6 && x 11 || x 7 && x 14 || x 8 && x 17)",
   "assigned_file": "lean/PEqualNP/Outside/L_meta_18919.lean",
   "assigned_module": "PEqualNP.Outside.L_meta_18919",
   "assigned_imports": [
@@ -31,5 +31,6 @@
   "reference_lean_file": "../L_meta_18919_schoolbook_replay.lean",
   "generated_proof_plain_format_check": "passed_on_test_file",
   "current_random_seed": 20261128,
-  "structured_search": true
+  "structured_search": true,
+  "checkpoint_utc": "2026-11-26T19:00:36.568244+00:00"
 }

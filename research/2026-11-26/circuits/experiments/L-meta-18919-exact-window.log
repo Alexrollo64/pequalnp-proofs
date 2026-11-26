@@ -1,0 +1,20 @@
+CONTROL reference verified on all 4096 window inputs
+iterations 0 best_objective 3072 exact_window_errors 2304
+iterations 2 best_objective 2880 exact_window_errors 2880
+iterations 14 best_objective 2592 exact_window_errors 2592
+iterations 41 best_objective 2328 exact_window_errors 2328
+iterations 67 best_objective 2304 exact_window_errors 2304
+iterations 105 best_objective 2214 exact_window_errors 2214
+iterations 260 best_objective 2172 exact_window_errors 2172
+iterations 383 best_objective 2064 exact_window_errors 2064
+iterations 4357 best_objective 1920 exact_window_errors 1920
+iterations 6121 best_objective 1536 exact_window_errors 1536
+iterations 6631 best_objective 1504 exact_window_errors 1504
+iterations 6912 best_objective 1408 exact_window_errors 1408
+iterations 8828 best_objective 1350 exact_window_errors 1350
+iterations 9046 best_objective 1280 exact_window_errors 1280
+iterations 211165 best_objective 1132 exact_window_errors 1132
+iterations 212138 best_objective 1112 exact_window_errors 1112
+iterations 212321 best_objective 1088 exact_window_errors 1088
+iterations 3240462 best_objective 1056 exact_window_errors 1056
+TIME LIMIT; no witness; full shard remains unexhausted

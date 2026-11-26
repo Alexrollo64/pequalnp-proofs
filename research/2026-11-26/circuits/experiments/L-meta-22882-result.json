@@ -1,0 +1,18 @@
+{
+  "unit": "L-meta-22882",
+  "posted_gate_bound": 5,
+  "reference_gate_bound": 6,
+  "lean_reference_checked": true,
+  "sat_result": "UNSAT",
+  "cases": 21,
+  "cnf_variables": 616,
+  "cnf_clauses": 4732,
+  "independent_drat_check": "VERIFIED",
+  "formal_sat_to_lean_bridge": false,
+  "unit_proof_submitted": false,
+  "scope": "The DRAT checker certifies the generated CNF. No Lean proof equating this CNF to every circuit permitted by the posted statement has been supplied.",
+  "sha256": {
+    "L-meta-22882-full.cnf": "d7f6f9963d64f36452eed5d8fdcdc706482a994e2cf19e2a3c3daf7dbb10d072",
+    "L-meta-22882-full.drat": "3b648062ec9676f2d2e28b70953ee6f8b682d6187cc996472189c780b95bfe94"
+  }
+}

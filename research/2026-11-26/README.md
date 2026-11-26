@@ -6,7 +6,7 @@ Ce dossier rassemble le travail de recherche effectué pour Alexrollo64 sur les 
 | --- | --- |
 | Preuves complètes d’unités soumises au projet pendant ces sessions | 0 |
 | Preuves acceptées par le vérificateur du projet pendant ces sessions | 0 |
-| Fichiers de résultats Lean vérifiés localement | 3 |
+| Fichiers de résultats Lean vérifiés localement | 4 |
 | Formules SAT restreintes exclues avec un contrôle DRAT indépendant | 21 |
 | Circuits de référence 4 × 5 vérifiés sur leurs vingt entrées | 14 |
 | Recherche sur L-meta-21111 | Réservation rendue après essais sans témoin |
@@ -32,7 +32,7 @@ Le fichier L_meta_4131_progress contient également des lemmes auxiliaires sur d
 
 ## Reproduction
 
-Les deux fichiers Lean ont été vérifiés avec Lean 4.36.0 et les dépendances du dépôt au commit `1b129350cb6ba392b73f11af10e914e9ef7c77fd`. Depuis le répertoire `lean` du dépôt, les commandes suivantes reconstruisent les définitions puis vérifient les fichiers.
+Les fichiers Lean ont été vérifiés avec Lean 4.36.0 et les dépendances du dépôt au commit `1b129350cb6ba392b73f11af10e914e9ef7c77fd`. Depuis le répertoire `lean` du dépôt, les commandes suivantes reconstruisent les définitions puis vérifient les fichiers.
 
 ```sh
 lake exe cache get
@@ -101,3 +101,25 @@ python3 circuits/verify-matrix3.py /tmp/pequalnp-matrix3-best.json
 ```
 
 Le statut de participation conserve zéro preuve complète soumise ou acceptée pendant ces sessions. Les données d’attribution et les résultats de vérification sont publiés au fur et à mesure du travail.
+
+
+## Certificat SAT et recherche sur tables complètes
+
+L’unité L-meta-22882 demandait cinq portes pour une fonction sur les entrées ayant une ou deux positions actives. La synthèse SAT sur les 21 entrées distinctes a conclu UNSAT. Le certificat DRAT a passé un contrôle indépendant avec drat-trim. La CNF et son certificat compressés sont conservés avec leurs empreintes. La correspondance entre ce modèle SAT et tous les circuits permis par l’énoncé reste à formaliser dans Lean ; aucune réfutation de cette unité n’a été soumise. Une construction de référence à six portes a été vérifiée dans Lean. [Résultat et portée](circuits/experiments/L-meta-22882-result.json) · [Référence Lean](L_meta_22882_reference.lean) · [Certificats](circuits/certificates)
+
+```sh
+gzip -dc circuits/certificates/L-meta-22882-full.cnf.gz > /tmp/pequalnp-22882.cnf
+gzip -dc circuits/certificates/L-meta-22882-full.drat.gz > /tmp/pequalnp-22882.drat
+/chemin/vers/drat-trim /tmp/pequalnp-22882.cnf /tmp/pequalnp-22882.drat
+```
+
+Pour le produit matriciel, une autre recherche conserve six sorties de référence et tente de calculer les trois autres en quatorze portes. Ses tables couvrent toutes les 4 096 affectations des douze variables concernées. Ce périmètre constitue une restriction de la tranche attribuée. Les recherches Python et C++ ont atteint leurs limites de temps sans témoin ; la tranche complète n’est pas épuisée. Les journaux conservent les améliorations et le statut final.
+
+```sh
+python3 circuits/matrix3-window.py --full-table
+c++ -O3 -std=c++17 circuits/evolve-exact-window.cpp -o /tmp/pequalnp-window
+/tmp/pequalnp-window 300 20261201 /tmp/pequalnp-window-best.json \
+  < window-results/L-meta-18919-full-window.txt > /tmp/pequalnp-window-candidate.json
+```
+
+Le générateur de table et l’optimiseur C++ n’ont besoin ni de PySAT ni d’un accès réseau. Tout éventuel témoin doit encore être assemblé et contrôlé sur les 262 144 entrées de la matrice entière, puis passer la preuve Lean et les contrôles du projet.
