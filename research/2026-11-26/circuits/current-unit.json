@@ -9,6 +9,6 @@
   "reference_gate_bound": 11,
   "reference_lean_checked": true,
   "unit_proof_submitted": false,
-  "search_status": "Running direct gate-choice SAT; earlier mux SAT remains without verdict; two stochastic runs ended without witness; restricted ordered and fanout models timed out without verdict",
-  "updated_at": "2026-11-26T19:09:11.042377+00:00"
+  "search_status": "Released out_of_time; no witness. Two stochastic runs, two restricted SAT limits, direct gate-choice SAT limit and interrupted mux SAT all left the posted bound unproved.",
+  "updated_at": "2026-11-26T19:16:13.698767+00:00"
 }

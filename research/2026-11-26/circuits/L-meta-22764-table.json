@@ -1,0 +1,15 @@
+{
+  "input_masks": [
+    63,
+    1986,
+    30852,
+    233736,
+    860688,
+    1721376
+  ],
+  "cases": 21,
+  "target": 413,
+  "budget": 5,
+  "allow_not": true,
+  "certificate_prefix": "/tmp/pequalnp-L-meta-22764"
+}

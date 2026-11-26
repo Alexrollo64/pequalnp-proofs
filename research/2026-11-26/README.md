@@ -10,7 +10,7 @@ Ce dossier rassemble le travail de recherche effectué pour Alexrollo64 sur les 
 | Formules SAT restreintes exclues avec un contrôle DRAT indépendant | 21 |
 | Circuits de référence 4 × 5 vérifiés sur leurs vingt entrées | 14 |
 | Recherche sur L-meta-21111 | Réservation rendue après essais sans témoin |
-| Unité actuellement travaillée | L-meta-23736, graphe 4 × 6 |
+| Dernière recherche de graphe 4 × 6 | L-meta-23736, rendue sans témoin |
 
 ## Encodeur sur seize entrées
 
@@ -135,3 +135,18 @@ L’énoncé attribué demande dix portes AND/OR. Une construction de référenc
 ```
 
 Cette recherche sélectionne deux fils antérieurs distincts et une opération AND/OR pour chaque porte. Elle écarte les portes sur entrées primaires qui sont constantes ou recopient un de leurs parents, et exige que chaque porte intermédiaire soit lue. Les options de tri et de lecture de toutes les entrées ajoutent d’autres restrictions lorsqu’elles figurent dans le fichier de paramètres. Un témoin reste contrôlé sur toutes les entrées puis dans Lean ; une absence de témoin ou un verdict UNSAT de ce modèle n’est pas une réfutation formelle de l’énoncé.
+
+
+## Bilan des petites synthèses sur six entrées
+
+Quatre unités attribuées ont été étudiées sur les 21 configurations distinctes à une ou deux entrées actives. Les CNF de recherche ont donné UNSAT aux tailles demandées. Pour L-meta-22882, L-meta-24212 et L-meta-22764, un certificat DRAT a également passé le contrôle indépendant. L-meta-24403 conserve uniquement le verdict du solveur de cette exécution. Les paramètres, énoncés attribués, empreintes des programmes et certificats, et limites de portée sont publiés dans le relevé. Aucune de ces observations n’est une réfutation Lean soumise au projet. [Relevé des quatre unités](circuits/experiments/two-lit-sat-results.json)
+
+Les tables publiques permettent de régénérer les CNF et les certificats avec le solveur fourni. Le préfixe de sortie est dans /tmp. Par exemple :
+
+```sh
+/tmp/pequalnp-research-env/bin/python circuits/synth-circuit.py \
+  circuits/L-meta-22764-table.json /tmp/pequalnp-22764-candidate.txt
+/chemin/vers/drat-trim /tmp/pequalnp-L-meta-22764.cnf /tmp/pequalnp-L-meta-22764.drat
+```
+
+Sur L-meta-23736, la synthèse directe par choix de porte a aussi atteint sa limite de 150 secondes sans verdict. La recherche avec multiplexeurs a été interrompue sans verdict. La réservation a été rendue avec le motif out_of_time. La référence Lean à onze portes reste un contrôle positif ; l’objectif à dix portes demeure non démontré. Le bilan des preuves complètes soumises et acceptées reste zéro.

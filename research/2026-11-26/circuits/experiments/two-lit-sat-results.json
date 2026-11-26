@@ -1,0 +1,79 @@
+{
+  "updated_at": "2026-11-26T19:16:13.698464+00:00",
+  "handle": "Alexrollo64",
+  "normalization_formalized_in_lean": false,
+  "results": [
+    {
+      "unit": "L-meta-22882",
+      "posted_statement": "∃ C : PEqualNP.CircuitLowerBounds.Circuit, PEqualNP.MetaComplexity.FanInTwo C ∧ C.size ≤ 5 ∧ ∀ i j : Fin 6, C.eval (List.ofFn fun k : Fin 6 => decide (k = i ∨ k = j)) = (34630324159 : ℕ).testBit (6 * min i.val j.val + max i.val j.val)",
+      "imports": [
+        "PEqualNP.Defs"
+      ],
+      "gate_bound": 5,
+      "cases": 21,
+      "solver_result": "UNSAT",
+      "scope": "Generated SAT model; no Lean normalization bridge supplied",
+      "proof_submitted": false,
+      "release_reason": "statement_seems_false",
+      "source_sha256": "23f0692bf343afdce2aac3163689c07171996fe2a93840ec491916d463aee1af",
+      "independent_drat_check": "VERIFIED",
+      "certificate_sha256": {
+        "cnf": "d7f6f9963d64f36452eed5d8fdcdc706482a994e2cf19e2a3c3daf7dbb10d072",
+        "drat": "3b648062ec9676f2d2e28b70953ee6f8b682d6187cc996472189c780b95bfe94"
+      }
+    },
+    {
+      "unit": "L-meta-24212",
+      "posted_statement": "∃ C : PEqualNP.CircuitLowerBounds.Circuit, PEqualNP.MetaComplexity.FanInTwo C ∧ C.size ≤ 6 ∧ ∀ i j : Fin 6, C.eval (List.ofFn fun k : Fin 6 => decide (k = i ∨ k = j)) = (270649275 : ℕ).testBit (6 * min i.val j.val + max i.val j.val)",
+      "imports": [
+        "PEqualNP.Defs"
+      ],
+      "gate_bound": 6,
+      "cases": 21,
+      "solver_result": "UNSAT",
+      "scope": "Generated SAT model; no Lean normalization bridge supplied",
+      "proof_submitted": false,
+      "release_reason": "statement_seems_false",
+      "source_sha256": "23f0692bf343afdce2aac3163689c07171996fe2a93840ec491916d463aee1af",
+      "independent_drat_check": "VERIFIED",
+      "certificate_sha256": {
+        "cnf": "184502d3d73526139045c16e4e68ae539be44cf192b1d8d39c928d491f3b82b9",
+        "drat": "914a41379dd509e0e4a265e33148fb5fa602aadbd4b7573c7bce1d32107f2c3d"
+      }
+    },
+    {
+      "unit": "L-meta-24403",
+      "posted_statement": "∃ C : PEqualNP.CircuitLowerBounds.Circuit, PEqualNP.MetaComplexity.FanInTwo C ∧ C.size ≤ 8 ∧ ∀ i j : Fin 6, C.eval (List.ofFn fun k : Fin 6 => decide (k = i ∨ k = j)) = (36669 : ℕ).testBit (6 * min i.val j.val + max i.val j.val)",
+      "imports": [
+        "PEqualNP.Defs"
+      ],
+      "gate_bound": 8,
+      "cases": 21,
+      "solver_result": "UNSAT",
+      "scope": "Generated SAT model; no Lean normalization bridge supplied",
+      "proof_submitted": false,
+      "release_reason": "statement_seems_false",
+      "source_sha256": "23f0692bf343afdce2aac3163689c07171996fe2a93840ec491916d463aee1af",
+      "independent_drat_check": "Not produced for this run"
+    },
+    {
+      "unit": "L-meta-22764",
+      "posted_statement": "∃ C : PEqualNP.CircuitLowerBounds.Circuit, PEqualNP.MetaComplexity.FanInTwo C ∧ C.size ≤ 5 ∧ ∀ i j : Fin 6, C.eval (List.ofFn fun k : Fin 6 => decide (k = i ∨ k = j)) = (797 : ℕ).testBit (6 * min i.val j.val + max i.val j.val)",
+      "imports": [
+        "PEqualNP.Defs"
+      ],
+      "gate_bound": 5,
+      "cases": 21,
+      "solver_result": "UNSAT",
+      "scope": "Generated SAT model; no Lean normalization bridge supplied",
+      "proof_submitted": false,
+      "release_reason": "statement_seems_false",
+      "source_sha256": "23f0692bf343afdce2aac3163689c07171996fe2a93840ec491916d463aee1af",
+      "independent_drat_check": "VERIFIED",
+      "certificate_sha256": {
+        "cnf": "14ab4000b3d5711a6beab952707dfcec5867f161ad276f28dc2e1acf29efe3d8",
+        "drat": "a30aa63fcec1781c298f1ef48a8e910c5d849fe7089e5f4621bd3e510f6892cf"
+      }
+    }
+  ]
+}
