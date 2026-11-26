@@ -161,5 +161,45 @@ theorem output_is_gate (C : Circuit) (t : Nat × Nat) (ht : t ∈ targets)
     rw [solves,hr] at bad
     contradiction
 
+/-- Discard every gate after the designated output while preserving evaluation. -/
+theorem truncate_output (C : Circuit) (n : Nat)
+    (lo : n ≤ C.output) (hi : C.output < n + C.size) :
+    ∃ D : Circuit, D.size ≤ C.size ∧ D.output + 1 = n + D.size ∧
+      D.gates = C.gates.take (C.output + 1 - n) ∧
+      ∀ x : List Bool, x.length = n → D.eval x = C.eval x := by
+  let k := C.output + 1 - n
+  have hk : k ≤ C.gates.length := by unfold k; unfold Circuit.size at hi; omega
+  have last : n + k = C.output + 1 := by unfold k; omega
+  let D : Circuit := ⟨C.gates.take k, C.output⟩
+  have len : D.size = k := by simp [D, Circuit.size, List.length_take, Nat.min_eq_left hk]
+  refine ⟨D, len ▸ hk, ?_, rfl, ?_⟩
+  · change C.output + 1 = n + D.size
+    rw [len,last]
+  · intro x hx
+    have bound : C.output < (D.wires x).length := by
+      unfold Circuit.wires
+      rw [fold_length, hx]
+      change C.output < n + D.size
+      omega
+    conv_rhs =>
+      unfold Circuit.eval Circuit.wires
+      rw [← List.take_append_drop k C.gates, List.foldl_append]
+    exact (fold_prefix (C.gates.drop k) (D.wires x) C.output bound).symm
+
+/-- The transformation retains every per-gate condition, including the project's fan-in constraint. -/
+theorem last_gate_solution (C : Circuit) (t : Nat × Nat) (ht : t ∈ targets)
+    (solves : ∀ r, C.eval (List.ofFn (packedInput r)) = t.2.testBit r.val) :
+    ∃ D : Circuit, D.size ≤ C.size ∧ D.output + 1 = 6 + D.size ∧
+      (∀ g ∈ D.gates, g ∈ C.gates) ∧
+      (∀ x : List Bool, x.length = 6 → D.eval x = C.eval x) := by
+  obtain ⟨lo, hi⟩ := output_is_gate C t ht solves
+  obtain ⟨D, small, last, htake, same⟩ := truncate_output C 6 lo hi
+  refine ⟨D, small, last, ?_, same⟩
+  intro g hg
+  rw [htake] at hg
+  exact List.mem_of_mem_take hg
+
+#print axioms last_gate_solution
+#print axioms truncate_output
 #print axioms output_is_gate
 end Alexrollo64.TwoLitTables
