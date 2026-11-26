@@ -166,3 +166,20 @@ La preuve `Normalization.exact_budget_legal` intègre ensuite la normalisation d
 ### Propagation des constantes et des copies
 
 Lean 4.36.0 a vérifié `eliminate_constants` et `translate_fits`. Pour toute longueur d’entrée fixée et tout circuit ET/OU/NON non constant dont chaque porte lit au plus deux fils, la traduction préserve la sortie sur toutes les entrées de cette longueur et utilise au plus autant de portes. Elle propage les constantes et les références directes, traite les lectures hors limites selon la sémantique officielle, et émet seulement des ET/OU binaires à parents triés ou des NON unaires sur des fils déjà disponibles. La preuve se fait par induction sur la liste des portes. La prochaine étape consiste à composer cette traduction avec le choix de la sortie et le budget exact, puis à construire une affectation satisfaisant toutes les clauses, y compris les variables auxiliaires des contraintes de cardinalité. [Preuve vérifiée](ConstantPropagation.lean)
+
+### Forme complète du circuit et vérification LRAT du 27 novembre
+
+`structural_iff` démontre dans les deux sens, pour les quatre tables et tout budget, l'équivalence entre l'énoncé utilisant le prédicat officiel `FanInTwo` et un circuit de taille exacte, à sortie finale, à parents antérieurs triés pour ET/OU et à parent unique pour NON. La preuve conserve la même forme de circuit au cours de la suppression des constantes, de la troncature et du remplissage. [Preuve](SynthesisNormalForm.lean)
+
+Pour L-meta-22882, le DIMACS publié contient 616 variables et 4 732 clauses (SHA-256 `d7f6f9963d64f36452eed5d8fdcdc706482a994e2cf19e2a3c3daf7dbb10d072`). CaDiCaL 2.1.2 a régénéré un certificat LRAT texte de 16 509 actions (SHA-256 `2e6aa4dc01c383c15fc35baa25645f46180246cb6740a22d9bddb98278a862e5`). Le vérificateur LRAT de la bibliothèque standard Lean 4.36.0 l'a accepté après une conversion aller-retour identique octet par octet du DIMACS. Un nombre de clauses erroné et un certificat tronqué ont été rejetés. Il s'agit d'une exécution du vérificateur sur cette formule. Il reste à construire l'affectation des clauses du DIMACS à partir d'un circuit en forme normale pour en déduire la réfutation du lemme. [Vérificateur](ReplayDimacs.lean)
+
+Depuis ce dossier avec la version du projet de Lean et le CaDiCaL indiqué, la vérification du certificat se reproduit ainsi :
+
+```sh
+gzip -dc circuits/certificates/L-meta-22882-full.cnf.gz > /tmp/L22882.cnf
+cadical --lrat --no-binary /tmp/L22882.cnf /tmp/L22882.lrat
+# CaDiCaL retourne 20 pour UNSAT.
+lean --run ReplayDimacs.lean /tmp/L22882.cnf /tmp/L22882.lrat
+```
+
+Pour compiler `SynthesisNormalForm.lean`, compiler d'abord les modules voisins `ConstantPropagation.lean` et `TwoLitTables.lean` en .olean et ajouter leur dossier à LEAN_PATH dans l'environnement Lake du projet.
