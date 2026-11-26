@@ -1,0 +1,160 @@
+{
+  "snapshot_at": "2026-11-26T18:44:55+01:00",
+  "active_unit": "L-meta-21111",
+  "records": [
+    {
+      "unit": "L-meta-20899",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 35741,
+      "required_max_gates": 8,
+      "baseline_gates": 9,
+      "baseline_file": "baselines/L-meta-20899.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    },
+    {
+      "unit": "L-meta-20901",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 35775,
+      "required_max_gates": 8,
+      "baseline_gates": 9,
+      "baseline_file": "baselines/L-meta-20901.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    },
+    {
+      "unit": "L-meta-20946",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 101879,
+      "required_max_gates": 6,
+      "baseline_gates": 7,
+      "baseline_file": "baselines/L-meta-20946.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    },
+    {
+      "unit": "L-meta-20955",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 105720,
+      "required_max_gates": 8,
+      "baseline_gates": 10,
+      "baseline_file": "baselines/L-meta-20955.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    },
+    {
+      "unit": "L-meta-21016",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 39161,
+      "required_max_gates": 9,
+      "baseline_gates": 10,
+      "baseline_file": "baselines/L-meta-21016.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    },
+    {
+      "unit": "L-meta-21018",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 39250,
+      "required_max_gates": 9,
+      "baseline_gates": 10,
+      "baseline_file": "baselines/L-meta-21018.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    },
+    {
+      "unit": "L-meta-21033",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 40439,
+      "required_max_gates": 8,
+      "baseline_gates": 9,
+      "baseline_file": "baselines/L-meta-21033.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    },
+    {
+      "unit": "L-meta-21052",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 101885,
+      "required_max_gates": 9,
+      "baseline_gates": 10,
+      "baseline_file": "baselines/L-meta-21052.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    },
+    {
+      "unit": "L-meta-21055",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 103775,
+      "required_max_gates": 8,
+      "baseline_gates": 9,
+      "baseline_file": "baselines/L-meta-21055.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    },
+    {
+      "unit": "L-meta-21058",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 103801,
+      "required_max_gates": 9,
+      "baseline_gates": 10,
+      "baseline_file": "baselines/L-meta-21058.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    },
+    {
+      "unit": "L-meta-21099",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 241403,
+      "required_max_gates": 9,
+      "baseline_gates": 10,
+      "baseline_file": "baselines/L-meta-21099.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    },
+    {
+      "unit": "L-meta-21111",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 35223,
+      "required_max_gates": 10,
+      "baseline_gates": 11,
+      "baseline_file": "baselines/L-meta-21111.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    },
+    {
+      "unit": "L-meta-21120",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 36059,
+      "required_max_gates": 10,
+      "baseline_gates": 11,
+      "baseline_file": "baselines/L-meta-21120.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    },
+    {
+      "unit": "L-meta-21288",
+      "rows": 4,
+      "columns": 5,
+      "target_mask": 40310,
+      "required_max_gates": 11,
+      "baseline_gates": 12,
+      "baseline_file": "baselines/L-meta-21288.txt",
+      "truth_table_verified": true,
+      "complete_proof_submitted": false
+    }
+  ]
+}

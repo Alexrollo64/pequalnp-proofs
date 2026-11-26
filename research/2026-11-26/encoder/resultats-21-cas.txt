@@ -1,0 +1,22 @@
+regular masks 80 possible first irregular masks 1804 symmetry classes 21
+[7] UNSAT checked 
+[6] UNSAT checked 
+[24] UNSAT checked 
+[25] UNSAT checked 
+[31] UNSAT checked 
+[27] UNSAT checked 
+[60] UNSAT checked 
+[63] UNSAT checked 
+[384] UNSAT checked 
+[385] UNSAT checked 
+[426] UNSAT checked 
+[393] UNSAT checked 
+[427] UNSAT checked 
+[855] UNSAT checked 
+[511] UNSAT checked 
+[960] UNSAT checked 
+[975] UNSAT checked 
+[963] UNSAT checked 
+[1023] UNSAT checked 
+[4080] UNSAT checked 
+[4095] UNSAT checked 
