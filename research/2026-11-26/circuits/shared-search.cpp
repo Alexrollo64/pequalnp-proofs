@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <random>
 struct Gate { uint32_t left, right, value; bool disjunction; };
 int main(int argc, char** argv) {
   if (argc < 6) return 2;
@@ -73,6 +74,31 @@ int main(int argc, char** argv) {
           cost[value]=k;source[value]={a,b,value,disjunction};levels[k].push_back(value);
         }
       }
+    }
+    if (seeds >= 4) {
+      std::vector<uint32_t> pool=levels[1];
+      pool.insert(pool.end(),levels[2].begin(),levels[2].end());
+      std::vector<std::pair<size_t,size_t>> pairs;
+      for (size_t a=0;a<pool.size();a++) for(size_t b=a+1;b<pool.size();b++) pairs.push_back({a,b});
+      std::mt19937 random(target);
+      std::shuffle(pairs.begin(),pairs.end(),random);
+      std::cerr << "two-support candidates " << pairs.size() << " quota 5000\n";
+      size_t tried=0;
+      for (auto pair:pairs) {
+        std::vector<Gate> initial;
+        std::vector<uint32_t> done=primary;
+        auto collect=[&](auto&& self,uint32_t v)->void {
+          if(std::find(done.begin(),done.end(),v)!=done.end()) return;
+          auto gate=source[v];self(self,gate.left);self(self,gate.right);
+          done.push_back(v);initial.push_back(gate);
+        };
+        collect(collect,pool[pair.first]);collect(collect,pool[pair.second]);
+        if (solve(initial)) return 0;
+        tried++;
+        if (tried%100==0) std::cerr << "tested " << tried << "\n";
+        if (tried>=5000) break;
+      }
+      return 1;
     }
     for (int k=2;k<=3;k++) {
       std::cerr << "support cost " << k << " candidates " << levels[k].size() << "\n";

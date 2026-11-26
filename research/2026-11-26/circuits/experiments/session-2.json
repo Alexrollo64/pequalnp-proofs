@@ -1,0 +1,49 @@
+{
+  "recorded_at": "2026-11-26T19:07:17+01:00",
+  "unit_returned": "L-meta-21111",
+  "desk_reason": "statement_seems_false",
+  "complete_proof": false,
+  "full_unsat_verdict": false,
+  "two_shared_supports": {
+    "candidates_tested": 5000,
+    "status": "completed_without_witness"
+  },
+  "alternative_sat": {
+    "variables": 4430,
+    "clauses": 119625,
+    "time_limit_seconds": 120,
+    "status": "time_limit_without_verdict"
+  },
+  "isomorphic_searches": [
+    {
+      "gate_budget": 8,
+      "restarts": 2000,
+      "iterations_per_restart": 40000,
+      "status": "completed_without_witness"
+    },
+    {
+      "gate_budget": 9,
+      "restarts": 2000,
+      "iterations_per_restart": 40000,
+      "status": "completed_without_witness"
+    },
+    {
+      "gate_budget": 10,
+      "restarts": 2000,
+      "iterations_per_restart": 40000,
+      "status": "completed_without_witness"
+    },
+    {
+      "gate_budget": 11,
+      "restarts": 2000,
+      "iterations_per_restart": 40000,
+      "status": "completed_without_witness"
+    }
+  ],
+  "positive_control": {
+    "name": "CONTROL-known-11-gate-circuit",
+    "gates": 11,
+    "target_mask": 35223,
+    "status": "witness_replayed_and_evaluated"
+  }
+}

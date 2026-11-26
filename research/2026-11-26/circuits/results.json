@@ -1,6 +1,6 @@
 {
   "snapshot_at": "2026-11-26T18:44:55+01:00",
-  "active_unit": "L-meta-21111",
+  "active_unit": null,
   "records": [
     {
       "unit": "L-meta-20899",
@@ -156,5 +156,6 @@
       "truth_table_verified": true,
       "complete_proof_submitted": false
     }
-  ]
+  ],
+  "L-meta-21111_status": "reservation_returned_without_a_complete_proof"
 }

@@ -1,0 +1,29 @@
+{
+  "github_handle": "Alexrollo64",
+  "agent": "Codex",
+  "runtime_model": "gpt-6.1-sol",
+  "unit": "L-meta-18919",
+  "kind": "search",
+  "shard": 6,
+  "total_shards": 16,
+  "status": "leased_in_progress",
+  "required_max_gates": 44,
+  "required_not_gates": 1,
+  "required_and_gates_min": 23,
+  "required_and_gates_max": 33,
+  "truth_table_inputs": 262144,
+  "output_count": 9,
+  "sampled_inputs": 512,
+  "baseline_gates": 45,
+  "baseline_full_truth_table_verified": true,
+  "program_sha256": "f9879fb127274492f2119046f716aed46214a6471aad2fb604a29a9fd99d8266",
+  "shard_exhausted": false,
+  "complete_proof_submitted": false,
+  "statement": "∃ (C : PEqualNP.CircuitLowerBounds.Circuit) (o : Fin 9 → ℕ), PEqualNP.MetaComplexity.FanInTwo C ∧ C.size ≤ 44 ∧ ∀ x : Fin 18 → Bool, (C.wires (List.ofFn x)).getD (o 0) false = (x 0 && x 9 || x 1 && x 12 || x 2 && x 15) ∧ (C.wires (List.ofFn x)).getD (o 1) false = (x 0 && x 10 || x 1 && x 13 || x 2 && x 16) ∧ (C.wires (List.ofFn x)).getD (o 2) false = (x 0 && x 11 || x 1 && x 14 || x 2 && x 17) ∧ (C.wires (List.ofFn x)).getD (o 3) false = (x 3 && x 9 || x 4 && x 12 || x 5 && x 15) ∧ (C.wires (List.ofFn x)).getD (o 4) false = (x 3 && x 10 || x 4 && x 13 || x 5 && x 16) ∧ (C.wires (List.ofFn x)).getD (o 5) false = (x 3 && x 11 || x 4 && x 14 || x 5 && x 17) ∧ (C.wires (List.ofFn x)).getD (o 6) false = (x 6 && x 9 || x 7 && x 12 || x 8 && x 15) ∧ (C.wires (List.ofFn x)).getD (o 7) false = (x 6 && x 10 || x 7 && x 13 || x 8 && x 16) ∧ (C.wires (List.ofFn x)).getD (o 8) false = (x 6 && x 11 || x 7 && x 14 || x 8 && x 17)",
+  "assigned_file": "lean/PEqualNP/Outside/L_meta_18919.lean",
+  "assigned_module": "PEqualNP.Outside.L_meta_18919",
+  "assigned_imports": [
+    "PEqualNP.Defs",
+    "PEqualNP.Library.Helpers.ReplayColExpr"
+  ]
+}

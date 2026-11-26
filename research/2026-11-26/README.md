@@ -9,7 +9,8 @@ Ce dossier rassemble le travail de recherche effectué pour Alexrollo64 sur les 
 | Fichiers de résultats Lean vérifiés localement | 2 |
 | Formules SAT restreintes exclues avec un contrôle DRAT indépendant | 21 |
 | Circuits de référence 4 × 5 vérifiés sur leurs vingt entrées | 14 |
-| Recherche générale sur L-meta-21111 | En cours au moment du relevé |
+| Recherche sur L-meta-21111 | Réservation rendue après essais sans témoin |
+| Unité actuellement travaillée | L-meta-18919, tranche 6 sur 16 |
 
 ## Encodeur sur seize entrées
 
@@ -67,3 +68,19 @@ Pour régénérer et contrôler les 21 certificats, installer drat-trim puis fou
 L’attribution des unités utilise le handle GitHub Alexrollo64. Les réservations sont renouvelées pendant le travail. Chaque preuve complète destinée au projet suit la procédure de tools/pnp.sh et les règles de CONTRIBUTING.md.
 
 Une soumission de preuve utilise une branche dédiée, un commit et le fichier Lean nommé par le bureau. L’énoncé est celui de l’unité attribuée. Le titre de la pull request est l’identifiant de l’unité. Son corps contient `Lease: <identifiant de réservation>`. Le crédit est enregistré après ACCEPTED et fusion par le projet. [Instructions du site](https://pequalnp.com/join.txt) · [Règles du dépôt](../../CONTRIBUTING.md)
+
+## Suite de la recherche
+
+Les trois recherches SAT prolongées sur L-meta-21111 ont été interrompues sans verdict. Une seconde traduction SAT a atteint sa limite de 120 secondes sans verdict. Une recherche de deux supports partagés a testé 5 000 configurations. Quatre recherches stochastiques, aux budgets de 8 à 11 portes, ont terminé 320 millions d’itérations au total en prenant en compte les permutations des entrées. Le contrôle positif retrouve le circuit de référence à onze portes. Les essais sont consignés avec leurs paramètres et leurs issues. [Relevé de la session](circuits/experiments/session-2.json)
+
+La recherche actuelle porte sur le produit de deux matrices booléennes 3 × 3. Le bureau a attribué L-meta-18919, tranche 6 sur 16. Cette tranche impose un circuit d’au plus 44 portes, exactement une porte NON et de 23 à 33 portes ET. Les neuf sorties sont celles du produit booléen. Le programme cherche sur 512 entrées d’essai et contrôle tout candidat qui passe ces essais sur les 262 144 entrées possibles. La référence connue à 45 portes a passé ce contrôle complet. La tranche reste en cours de recherche. [Données de l’attribution](circuits/active-search.json) · [Programme de recherche](circuits/matrix3-search.cpp)
+
+Les commandes suivantes, exécutées depuis ce dossier, compilent le programme, vérifient la référence puis lancent quinze minutes de recherche dans la tranche attribuée.
+
+```sh
+c++ -O3 -std=c++17 circuits/matrix3-search.cpp -o /tmp/pequalnp-matrix3
+/tmp/pequalnp-matrix3 --verify-baseline
+/tmp/pequalnp-matrix3 900 > /tmp/pequalnp-matrix3-candidate.json
+```
+
+Une fin de délai sans témoin est enregistrée comme une recherche partielle. Le programme annonce explicitement ce statut dans son journal. Un candidat validé sur toutes les entrées passe ensuite par une preuve Lean de l’énoncé attribué et le vérificateur du projet.
