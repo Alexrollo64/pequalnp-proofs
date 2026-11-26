@@ -202,4 +202,63 @@ theorem last_gate_solution (C : Circuit) (t : Nat × Nat) (ht : t ∈ targets)
 #print axioms last_gate_solution
 #print axioms truncate_output
 #print axioms output_is_gate
+
+/-- A binary gate copying one wire; the two selected parents coincide. -/
+def copyWire (i : Nat) : Gate := ⟨.and,[i,i]⟩
+
+def appendCopy (n : Nat) (C : Circuit) : Circuit :=
+  ⟨C.gates ++ [copyWire C.output], n + C.size⟩
+
+theorem appendCopy_eval (n : Nat) (C : Circuit) (x : List Bool) (hx : x.length = n) :
+    (appendCopy n C).eval x = C.eval x := by
+  let w := C.wires x
+  have len : w.length = n + C.size := by
+    unfold w Circuit.wires
+    rw [fold_length, hx]
+    rfl
+  have step : (appendCopy n C).wires x = w ++ [C.eval x && C.eval x] := by
+    simp [appendCopy, Circuit.wires, List.foldl_append, copyWire, GateOp.eval, Circuit.eval, w]
+  unfold Circuit.eval at ⊢
+  rw [step, Bool.and_self]
+  change (w ++ [_]).getD (n + C.size) false = _
+  rw [← len]
+  simp [Circuit.eval]
+
+/-- Padding by binary copy gates preserves any gate condition that permits such copies. -/
+theorem pad_to_budget (n : Nat) (C : Circuit) (budget : Nat) (small : C.size ≤ budget)
+    (last : C.output + 1 = n + C.size) (P : Gate → Prop)
+    (hc : ∀ g ∈ C.gates, P g) (copyOK : ∀ i, P (copyWire i)) :
+    ∃ D : Circuit, D.size = budget ∧ D.output + 1 = n + budget ∧
+      (∀ g ∈ D.gates, P g) ∧ ∀ x : List Bool, x.length = n → D.eval x = C.eval x := by
+  induction budget, small using Nat.le_induction with
+  | base => exact ⟨C,rfl,last,hc,fun _ _ => rfl⟩
+  | succ b _ ih =>
+    obtain ⟨D, len, _, good, same⟩ := ih
+    refine ⟨appendCopy n D, ?_, ?_, ?_, ?_⟩
+    · change (D.gates ++ [_]).length = b+1
+      simpa [Circuit.size] using len
+    · change n + D.size + 1 = n + (b+1)
+      omega
+    · intro g hg
+      change g ∈ D.gates ++ [_] at hg
+      rcases List.mem_append.mp hg with h | h
+      · exact good g h
+      · simpa using (List.mem_singleton.mp h ▸ copyOK D.output : P g)
+    · intro x hx
+      exact (appendCopy_eval n D x hx).trans (same x hx)
+
+/-- A solution below budget has an equivalent exact-budget last-output solution. -/
+theorem exact_budget_solution (C : Circuit) (t : Nat × Nat) (ht : t ∈ targets)
+    (solves : ∀ r, C.eval (List.ofFn (packedInput r)) = t.2.testBit r.val)
+    (budget : Nat) (small : C.size ≤ budget) (P : Gate → Prop)
+    (good : ∀ g ∈ C.gates, P g) (copyOK : ∀ i, P (copyWire i)) :
+    ∃ D : Circuit, D.size = budget ∧ D.output + 1 = 6 + budget ∧
+      (∀ g ∈ D.gates, P g) ∧ ∀ x : List Bool, x.length = 6 → D.eval x = C.eval x := by
+  obtain ⟨E, le, last, sub, eq⟩ := last_gate_solution C t ht solves
+  obtain ⟨D, size, out, ok, eq'⟩ := pad_to_budget 6 E budget (le.trans small) last P
+    (fun g hg => good g (sub g hg)) copyOK
+  exact ⟨D, size, out, ok, fun x hx => (eq' x hx).trans (eq x hx)⟩
+
+#print axioms exact_budget_solution
+#print axioms pad_to_budget
 end Alexrollo64.TwoLitTables
