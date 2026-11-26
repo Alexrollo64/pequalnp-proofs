@@ -1,0 +1,60 @@
+{
+  "input_assignments": 262144,
+  "output_values_checked": 2359296,
+  "gates": 44,
+  "gate_counts": {
+    "and": 25,
+    "or": 18,
+    "not": 1
+  },
+  "within_shard_6": true,
+  "incorrect_output_values": 67584,
+  "assignments_with_an_error": 67584,
+  "outputs": [
+    {
+      "output": 0,
+      "wire": 27,
+      "errors": 0
+    },
+    {
+      "output": 1,
+      "wire": 51,
+      "errors": 0
+    },
+    {
+      "output": 2,
+      "wire": 22,
+      "errors": 0
+    },
+    {
+      "output": 3,
+      "wire": 37,
+      "errors": 0
+    },
+    {
+      "output": 4,
+      "wire": 46,
+      "errors": 67584
+    },
+    {
+      "output": 5,
+      "wire": 61,
+      "errors": 0
+    },
+    {
+      "output": 6,
+      "wire": 56,
+      "errors": 0
+    },
+    {
+      "output": 7,
+      "wire": 42,
+      "errors": 0
+    },
+    {
+      "output": 8,
+      "wire": 32,
+      "errors": 0
+    }
+  ]
+}

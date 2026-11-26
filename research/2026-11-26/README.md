@@ -6,7 +6,7 @@ Ce dossier rassemble le travail de recherche effectué pour Alexrollo64 sur les 
 | --- | --- |
 | Preuves complètes d’unités soumises au projet pendant ces sessions | 0 |
 | Preuves acceptées par le vérificateur du projet pendant ces sessions | 0 |
-| Fichiers de résultats Lean vérifiés localement | 2 |
+| Fichiers de résultats Lean vérifiés localement | 3 |
 | Formules SAT restreintes exclues avec un contrôle DRAT indépendant | 21 |
 | Circuits de référence 4 × 5 vérifiés sur leurs vingt entrées | 14 |
 | Recherche sur L-meta-21111 | Réservation rendue après essais sans témoin |
@@ -84,3 +84,20 @@ c++ -O3 -std=c++17 circuits/matrix3-search.cpp -o /tmp/pequalnp-matrix3
 ```
 
 Une fin de délai sans témoin est enregistrée comme une recherche partielle. Le programme annonce explicitement ce statut dans son journal. Un candidat validé sur toutes les entrées passe ensuite par une preuve Lean de l’énoncé attribué et le vérificateur du projet.
+
+## Vérification indépendante du produit matriciel
+
+La référence à 45 portes dispose maintenant d’une preuve Lean locale utilisant le module ReplayColExpr fourni par le projet et autorisé pour cette unité. Ce contrôle sert à préparer la production d’une preuve pour un éventuel circuit à 44 portes. Le générateur utilise l’énoncé et les imports de l’attribution du bureau. Son contrôle de format a passé le validateur du client sur un fichier de test. [Référence Lean à 45 portes](L_meta_18919_schoolbook_replay.lean) · [Générateur de preuve](circuits/make-matrix3-proof.py)
+
+Un second programme, écrit en Python, évalue les neuf sorties sur les 262 144 entrées au moyen de colonnes de vérité représentées par des entiers. Il confirme les 2 359 296 valeurs de sortie de la référence. Il donne également les erreurs de chaque sortie des candidats intermédiaires. [Vérificateur indépendant](circuits/verify-matrix3.py) · [Contrôle de la référence](circuits/experiments/matrix3-reference-45-verification.json)
+
+Un candidat intermédiaire de la recherche structurée est conservé avec son contrôle complet. Il respecte la taille et les nombres de portes de la tranche. Le contrôle constate encore des valeurs de sortie incorrectes. Le fichier porte le statut de candidat rejeté. [Candidat intermédiaire](circuits/experiments/matrix3-rejected-candidate-v3.json) · [Résultats du contrôle complet](circuits/experiments/matrix3-rejected-candidate-v3-verification.json)
+
+La variante structurée donne la priorité au partage d’intermédiaires entre les sorties et à l’utilisation de la porte NON. Ces critères guident la recherche. Les exemples ci-dessous lancent cette variante avec un checkpoint du meilleur candidat rencontré puis vérifient ce fichier.
+
+```sh
+/tmp/pequalnp-matrix3 660 20261128 /tmp/pequalnp-matrix3-best.json structured
+python3 circuits/verify-matrix3.py /tmp/pequalnp-matrix3-best.json
+```
+
+Le statut de participation conserve zéro preuve complète soumise ou acceptée pendant ces sessions. Les données d’attribution et les résultats de vérification sont publiés au fur et à mesure du travail.

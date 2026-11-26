@@ -8,6 +8,8 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <cstdio>
 
 constexpr int input_count=18;
 constexpr int gate_count=44;
@@ -84,22 +86,44 @@ int and_count(const Candidate& candidate) {
   return count;
 }
 
-void emit(const Candidate& candidate) {
-  std::cout<<"{\"input_count\":18,\"gates\":[";
+struct SharingInfo { int active, repeated_appearances; bool not_active; };
+
+SharingInfo analyze_sharing(const Candidate& candidate) {
+  std::array<uint64_t,input_count+45> ancestors{};
   for(int i=0;i<candidate.size;i++) {
-    auto gate=candidate.gates[i];if(i)std::cout<<",";
-    std::cout<<"{\"op\":\""<<(i==candidate.not_gate ? "not" : gate.is_or ? "or":"and")
-             <<"\",\"inputs\":["<<gate.left;
-    if(i!=candidate.not_gate)std::cout<<","<<gate.right;
-    std::cout<<"]}";
+    auto gate=candidate.gates[i];
+    auto cone=ancestors[gate.left] | (1ull<<i);
+    if(i!=candidate.not_gate)cone|=ancestors[gate.right];
+    ancestors[input_count+i]=cone;
   }
-  std::cout<<"],\"outputs\":[";
-  for(int i=0;i<9;i++){if(i)std::cout<<",";std::cout<<candidate.outputs[i];}
-  std::cout<<"]}\n";
+  uint64_t used=0;int appearances=0;
+  for(int output:candidate.outputs) {
+    used|=ancestors[output];
+    appearances+=__builtin_popcountll(ancestors[output]);
+  }
+  int active=__builtin_popcountll(used);
+  bool not_active=candidate.not_gate>=0 && ((used>>candidate.not_gate)&1);
+  return {active,appearances-active,not_active};
+}
+
+void emit(const Candidate& candidate, std::ostream& stream=std::cout) {
+  stream<<"{\"input_count\":18,\"gates\":[";
+  for(int i=0;i<candidate.size;i++) {
+    auto gate=candidate.gates[i];if(i)stream<<",";
+    stream<<"{\"op\":\""<<(i==candidate.not_gate ? "not" : gate.is_or ? "or":"and")
+             <<"\",\"inputs\":["<<gate.left;
+    if(i!=candidate.not_gate)stream<<","<<gate.right;
+    stream<<"]}";
+  }
+  stream<<"],\"outputs\":[";
+  for(int i=0;i<9;i++){if(i)stream<<",";stream<<candidate.outputs[i];}
+  stream<<"]}\n";
 }
 
 int main(int argc,char** argv) {
-  std::mt19937 random(20261126);
+  uint32_t random_seed=argc>2 ? std::stoul(argv[2]):20261126;
+  std::mt19937 random(random_seed);
+  if(argc==2 && std::string(argv[1])=="--emit-baseline") { emit(schoolbook(random)); return 0; }
   if(argc==2 && std::string(argv[1])=="--verify-baseline") {
     auto baseline=schoolbook(random);
     assert(baseline.size==45 && baseline.not_gate==-1 && and_count(baseline)==27);
@@ -107,6 +131,7 @@ int main(int argc,char** argv) {
     std::cout<<"Baseline verified on all 262144 inputs: 45 gates, 27 AND, 18 OR, 0 NOT\n";
     return 0;
   }
+  bool structured=argc>4 && std::string(argv[4])=="structured";
   int seconds=argc>1 ? std::stoi(argv[1]):900;
   if(seconds<1)return 2;
   std::vector<uint32_t> samples{0,(1u<<18)-1};
@@ -129,7 +154,7 @@ int main(int argc,char** argv) {
     }
   };
   rebuild_samples();
-  auto evaluate=[&](Candidate& candidate,int optimize_output) {
+  auto evaluate=[&](Candidate& candidate,int optimize_output,int* raw_errors=nullptr) {
     Values values=input_values;
     for(int gate_index=0;gate_index<gate_count;gate_index++) {
       auto gate=candidate.gates[gate_index];
@@ -149,19 +174,34 @@ int main(int argc,char** argv) {
     int score=0;
     for(int output=0;output<9;output++)for(int word=0;word<word_count;word++)
       score+=__builtin_popcountll(values[candidate.outputs[output]][word]^targets[output][word]);
+    if(raw_errors)*raw_errors=score;
+    if(structured) {
+      auto sharing=analyze_sharing(candidate);
+      score+=(sharing.not_active ? 0:96)+48*std::max(0,2-sharing.repeated_appearances);
+    }
     return score;
   };
   auto start=std::chrono::steady_clock::now();
   uint64_t iterations=0,restarts=0;int global_best=sample_count*9+1,epoch=0;
   auto expired=[&](){return std::chrono::steady_clock::now()-start>=std::chrono::seconds(seconds);};
   std::cerr<<"Unit L-meta-18919 shard 6: 44 gates, exactly 1 NOT, 23..33 AND\n";
+  std::cerr<<"random_seed "<<random_seed<<" structured "<<structured<<"\n";
   std::cerr<<"Samples "<<sample_count<<" permanent "<<permanent_samples<<" timebox_seconds "<<seconds<<"\n";
   while(!expired()) {
-    auto candidate=seed(random);int score=evaluate(candidate,-1),plateau=0;
+    auto candidate=seed(random);int raw_errors=0;
+    int score=evaluate(candidate,-1,&raw_errors),plateau=0;
     for(int step=0;step<120000;step++) {
       if((step&2047)==0 && expired())break;
-      if(score<global_best){global_best=score;std::cerr<<"epoch "<<epoch<<" iterations "<<iterations<<" best_sample_errors "<<score<<"\n";}
-      if(score==0) {
+      if(score<global_best){
+        global_best=score;
+        std::cerr<<"epoch "<<epoch<<" iterations "<<iterations<<" best_objective "<<score<<" sample_errors "<<raw_errors<<"\n";
+        if(argc>3) {
+          std::string temporary=std::string(argv[3])+".tmp";
+          { std::ofstream checkpoint(temporary);emit(candidate,checkpoint); }
+          std::rename(temporary.c_str(),argv[3]);
+        }
+      }
+      if(raw_errors==0) {
         int counterexample=evaluate_full(candidate);
         if(counterexample==-1) {
           assert(candidate.size==44 && candidate.not_gate>=0 && and_count(candidate)>=23 && and_count(candidate)<=33);
@@ -169,7 +209,7 @@ int main(int argc,char** argv) {
         }
         int index=permanent_samples+random()%(sample_count-permanent_samples);
         samples[index]=counterexample;rebuild_samples();epoch++;global_best=sample_count*9+1;
-        score=evaluate(candidate,-1);std::cerr<<"added_counterexample "<<counterexample<<"\n";
+        score=evaluate(candidate,-1,&raw_errors);std::cerr<<"added_counterexample "<<counterexample<<"\n";
       }
       auto proposal=candidate;
       int changes=1+(random()%12==0 ? random()%5:0);
@@ -184,14 +224,15 @@ int main(int argc,char** argv) {
       int ands=and_count(proposal);
       iterations++;
       if(ands<23 || ands>33)continue;
-      int next_score=evaluate(proposal,(step%8==0) ? random()%9:-1);
+      int next_raw_errors=0;
+      int next_score=evaluate(proposal,(step%8==0) ? random()%9:-1,&next_raw_errors);
       if(next_score<=score || (plateau>3000 && random()%20000<2)) {
-        plateau=next_score<score ? 0:plateau+1;candidate=proposal;score=next_score;
+        plateau=next_score<score ? 0:plateau+1;candidate=proposal;score=next_score;raw_errors=next_raw_errors;
       } else plateau++;
     }
     restarts++;
-    if(restarts%10==0)std::cerr<<"restarts "<<restarts<<" iterations "<<iterations<<" best_sample_errors "<<global_best<<"\n";
+    if(restarts%10==0)std::cerr<<"restarts "<<restarts<<" iterations "<<iterations<<" best_objective "<<global_best<<"\n";
   }
-  std::cerr<<"TIMEBOX END iterations "<<iterations<<" restarts "<<restarts<<" best_sample_errors "<<global_best<<"; no witness; shard remains unexhausted\n";
+  std::cerr<<"TIMEBOX END iterations "<<iterations<<" restarts "<<restarts<<" best_objective "<<global_best<<"; no witness; shard remains unexhausted\n";
   return 1;
 }
