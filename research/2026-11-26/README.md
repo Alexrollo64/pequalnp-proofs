@@ -323,3 +323,19 @@ python check-witness.py
 ```
 
 La vérification Lean utilise la version 4.36.0 du projet et le module DisjointCopies compilé. Le théorème porte sur le graphe à deux copies, étudié en complément de l’unité L-meta-20782 qui concerne une seule copie. Le résultat est publié dans le journal de recherche du fork.
+
+### 27 novembre — Ce qu’impliquerait un circuit à 24 portes pour trois copies
+
+Pour trois copies disjointes du graphe de masque 31917056, le minimum vérifié en Lean se situe entre 24 et 25 portes ET/OU, bornes incluses. Le résultat à deux copies reste exactement 16. Cette recherche prolonge le cas à une copie de L-meta-20782.
+
+[CommonThree.lean](CommonThree.lean) donne une condition nécessaire sur les circuits du projet. Si 24 portes suffisent, la remontée depuis la sortie atteint exactement les 24 entrées indispensables. À une étape, une porte utilise un intermédiaire déjà présent parmi les fils nécessaires. Le même intermédiaire a un poids strictement positif dans chacun des trois jeux de sept tests. Le théorème `candidate_joint` et ses dépendances ont passé la vérification du noyau de Lean 4.36.0 avec les axiomes usuels.
+
+On examine ensuite une forme de circuit plus précise. Un arbre ET/OU lit une fois ses entrées privées et produit un bit. Un second arbre lit chaque entrée extérieure au plus une fois et peut employer ce bit deux fois. Sur deux blocs à la fois, on retient les lignes 0, 2, 3, 4 et les colonnes 0, 1, 4, soit 48 cases. Les six coordonnées pertinentes de chaque bloc sont les lignes 2, 3, 4 et les colonnes 0, 1, 4. La ligne 0 est absente du support indispensable. Les colonnes 2 et 3 sont éteintes sur ces tests.
+
+Si les entrées extérieures d’une case positive sont incluses dans celles d’une case négative, la monotonie impose que le bit partagé vaille respectivement un et zéro. Ses valeurs doivent aussi respecter la monotonie sur les entrées privées. Enfin, sur les sept tests du certificat de poids, si le bloc a k coordonnées privées, le poids w du bit satisfait w ≤ k et 7 ≤ 6 − k + 2w. La première inégalité compte chaque entrée de l’arbre privé une fois. La seconde compte le bit deux fois dans l’arbre extérieur.
+
+Le [calcul Python](three-copy-partitions.py) énumère les 4 096 répartitions ordonnées sur une paire de blocs. Les 19 qui passent ce filtre sont les 18 paires formées d’une ligne seule et d’une colonne seule, dans les deux ordres, et la paire de masques (9, 9). Pour trois blocs, la seule répartition qui passe sur chaque paire est (9, 9, 9). Dans chaque bloc, la ligne 2 et la colonne 0 sont alors privées parmi les coordonnées testées. [PairFilter.lean](PairFilter.lean) contrôle l’implication sur les contraintes binaires explicites avec `bv_decide`. Son contrôle du certificat LRAT dépend de l’évaluation native de Lean. La déduction du triplet à partir de la liste des paires (`triangle`) utilise uniquement les axiomes usuels.
+
+Pour le dernier triplet, on fixe le bit partagé à sa valeur sur l’entrée privée nulle. Dans un bloc, les cases (4,0), (0,1), (3,1), (4,1), (3,4), (4,4) ont pour sorties 0, 0, 1, 1, 0, 1. Sur les trois positives, les coordonnées privées sont déjà nulles. Sur les négatives, abaisser le bit préserve la sortie zéro. Les quatre fils restants ont un poids total de 4, et la cible pèse 5. Le noyau vérifie la sous-additivité du poids et l’obstruction après fixation du bit sous ses hypothèses explicites dans [FourWireCore.lean](FourWireCore.lean), théorème `clamped_obstruction`.
+
+Pour reproduire le dénombrement, exécuter `python three-copy-partitions.py` dans ce répertoire. Le passage de la trace de partage de `candidate_joint` à la décomposition en deux arbres, puis aux hypothèses exactes des filtres et du dernier théorème, reste à formaliser. Cette étape manque pour conclure que 25 est optimal pour les circuits du projet.
