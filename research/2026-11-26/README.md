@@ -304,3 +304,22 @@ python shared-suite-counts.py
 ```
 
 [Résultats de l’énumération](shared-suite-counts.json) · [Recherche SAT sur la nouvelle suite](twenty-refinement.jsonl). Après ajout de la case (2,6), la recherche à 21 cases a atteint sa limite de 45 secondes avec le statut UNKNOWN. La valeur 20 concerne la taille des tests. Le coût optimal du circuit sur les deux copies reste compris entre 16 et 17 portes.
+
+### 27 novembre — Minimum exact de 16 portes pour deux copies
+
+[ExactTwoCopies.lean](ExactTwoCopies.lean) établit que deux copies disjointes du graphe de masque 31917056 admettent un circuit ET/OU de budget `n` si et seulement si `16 ≤ n`. La construction précédente coûtait 17 portes. Le nouveau circuit réalise le graphe sur les 100 entrées promises, y compris les cases entre les blocs. Le noyau Lean vérifie la construction et sa taille. La borne inférieure utilise le théorème `DisjointCopies.lower` du journal. Le même fichier vérifie un circuit de 25 portes pour trois copies sur les 225 entrées et exclut tout budget inférieur à 24. Il reste à déterminer si 24 portes suffisent pour trois copies.
+
+Le circuit calcule d’abord le OU des colonnes 1, 2 et 3 du premier bloc avec la ligne 9 du second bloc (indices à partir de zéro). Deux portes en aval lisent ce même signal. Le partage économise une porte par rapport au meilleur arbre de calcul. [Expression du circuit](two-copy-expression.json) · [Vérification Python indépendante des 100 cases](check-witness.py).
+
+Pour trouver ce signal, on a partitionné les 16 fils primaires indispensables. Une partie est lue exclusivement par un sous-circuit qui n’envoie qu’un bit au reste du circuit. [SingleBitFactor.lean](SingleBitFactor.lean) caractérise l’existence d’un tel codage et d’un décodeur monotone, indépendamment de leurs coûts. Si le décodeur ne peut distinguer une case positive d’une négative avec les seuls fils extérieurs, le bit partagé doit valoir respectivement un et zéro. Le critère vérifie si toutes ces obligations sont compatibles avec la monotonie et construit un code et un décodeur quand elles le sont.
+
+Sur les 65 536 choix possibles, le [programme de dénombrement](single-bit-factors.cpp) en retient 116. Il en reste 45 en exigeant au moins deux fils et la possibilité d’activer le bit sur au moins un des sept tests de chacun des deux blocs. Ces nombres proviennent du calcul C++. Le [programme de synthèse](separator.py) prend ensuite le OU choisi comme entrée disponible deux fois. À chaque porte OU, il répartit les échantillons positifs entre les deux branches. À chaque porte ET, il répartit les négatifs. Les deux branches consomment des occurrences distinctes des fils disponibles. Le programme retrouve la formule publiée pour le support 928, dont les bits indexent la liste `WIRES` du programme.
+
+```bash
+g++ -O3 -std=c++17 single-bit-factors.cpp -o single-bit-factors
+./single-bit-factors > single-bit-factors.csv
+python separator.py 928
+python check-witness.py
+```
+
+La vérification Lean utilise la version 4.36.0 du projet et le module DisjointCopies compilé. Le théorème porte sur le graphe à deux copies, étudié en complément de l’unité L-meta-20782 qui concerne une seule copie. Le résultat est publié dans le journal de recherche du fork.
