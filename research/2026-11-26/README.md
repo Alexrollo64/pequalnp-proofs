@@ -191,3 +191,16 @@ Le générateur Lean [FiveGateCNF.lean](FiveGateCNF.lean) reconstruit les 4 732 
 Lean a vérifié `allocated` (la numérotation de toutes les variables de 1 à 616), `one_complete` (les bits auxiliaires du compteur décrivent si le choix a déjà été rencontré) et `selector_blocks`. Pour chaque trace de calcul satisfaisant les hypothèses et chacune des cinq portes, la même affectation satisfait les trois blocs qui imposent un choix unique du fil gauche, du fil droit et de l’opération. La génération et la comparaison couvrent aussi les autres clauses. Pour la preuve d’impossibilité, il reste à démontrer leur satisfaction par cette affectation, à extraire la trace depuis le circuit normalisé et à assembler le certificat dans une preuve de l’énoncé exact.
 
 Pour reproduire la comparaison dans l’environnement Lake du projet, placer `TwoLitTables.olean` et `FiveGateCNF.olean` dans le chemin de modules, puis lancer `lean --run CheckFiveGateCNF.lean /tmp/L22882.cnf` sur le DIMACS décompressé.
+
+### 27 novembre 2026, session de 02 h 35 (Paris)
+
+Pour L-meta-22882, `TraceClauses.lean` démontre dans Lean 4.36.0 que toute trace du modèle normalisé à cinq portes satisfait les 4 732 clauses de la formule exacte. Le théorème `no_trace_of_unsat` prend l’insatisfiabilité comme hypothèse. La conversion d’un circuit arbitraire admissible en trace et l’intégration du certificat comme théorème fermé restent à établir. Le bureau indique `not_open` pour cette unité.
+
+`EmitTwoLitCNF.lean` généralise l’export aux autres budgets et cibles. Avec les dépendances du journal sur LEAN_PATH, la commande `lean --run EmitTwoLitCNF.lean BUDGET CIBLE instance.cnf` produit le DIMACS. CaDiCaL 2.1.2 (`cadical --lrat --no-binary instance.cnf cert.lrat`) puis ReplayDimacs.lean ont donné les contrôles suivants à 02 h 39 Paris.
+
+| Unité | Budget | Cible | Variables / clauses | Actions LRAT acceptées | SHA-256 du DIMACS | SHA-256 du LRAT |
+|---|---:|---:|---|---:|---|---|
+| L-meta-24212 | 6 | 310267 | 726 / 5945 | 44412 | 184502d3d73526139045c16e4e68ae539be44cf192b1d8d39c928d491f3b82b9 | 2b2111367f15673d940d96c66de1a889344bb6c4e24e8fa28f31acc0cd79ebed |
+| L-meta-22764 | 5 | 413 | 616 / 4732 | 7229 | 14ab4000b3d5711a6beab952707dfcec5867f161ad276f28dc2e1acf29efe3d8 | a86895af29866ed95d2cff47b9877c58b5016eb34364b0a6281ecd63a39f7ac9 |
+
+Pour L-meta-24403 (budget 8, cible 6077), le nouvel essai limité à 60 secondes s’est terminé sans verdict, code de sortie 0. Aucun certificat complet issu de cet essai. Ces contrôles portent sur les formules finies. Aucune preuve d’unité soumise dans cette session.
