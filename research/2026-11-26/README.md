@@ -204,3 +204,9 @@ Pour L-meta-22882, `TraceClauses.lean` démontre dans Lean 4.36.0 que toute trac
 | L-meta-22764 | 5 | 413 | 616 / 4732 | 7229 | 14ab4000b3d5711a6beab952707dfcec5867f161ad276f28dc2e1acf29efe3d8 | a86895af29866ed95d2cff47b9877c58b5016eb34364b0a6281ecd63a39f7ac9 |
 
 Pour L-meta-24403 (budget 8, cible 6077), le nouvel essai limité à 60 secondes s’est terminé sans verdict, code de sortie 0. Aucun certificat complet issu de cet essai. Ces contrôles portent sur les formules finies. Aucune preuve d’unité soumise dans cette session.
+
+### L-meta-20782 — minimum exact de huit portes (27 novembre 2026)
+
+Le noyau de Lean 4.36.0 vérifie dans [Mask31917056Lower.lean](Mask31917056Lower.lean) la négation exacte de la borne de sept portes pour le masque 31917056 sur 5 × 5. Les huit fils d’entrée indispensables obligent chacune de sept portes éventuelles à augmenter d’une unité le nombre de fils demandés en remontant depuis la sortie. Chaque porte doit donc remplacer un fil par deux fils distincts disponibles sans partage à cette étape. Sur sept couples d’essai, le poids de la sortie vaut sept et la somme des poids aux entrées indispensables vaut six. Les inégalités pour ET et OU sont toutes contrôlées par le noyau. [seven-test-weights.py](seven-test-weights.py) reproduit la table de poids. La construction à huit portes dans le théorème amont `PEqualNP.Outside.L_meta_20709` a aussi été recompilée. Ces deux bornes donnent le minimum exact pour cette table.
+
+Unité attribuée à 02 h 42 (Paris), renouvelée deux fois et rendue à 02 h 53 avec le motif confirmé `statement_seems_false`. Le bureau avait attribué le sens positif. Cette publication documente la réfutation locale. Le score et le verdict du projet dépendent de sa procédure de soumission.
