@@ -183,3 +183,11 @@ lean --run ReplayDimacs.lean /tmp/L22882.cnf /tmp/L22882.lrat
 ```
 
 Pour compiler `SynthesisNormalForm.lean`, compiler d'abord les modules voisins `ConstantPropagation.lean` et `TwoLitTables.lean` en .olean et ajouter leur dossier à LEAN_PATH dans l'environnement Lake du projet.
+
+### Numérotation et clauses de sélection pour L-meta-22882
+
+Le générateur Lean [FiveGateCNF.lean](FiveGateCNF.lean) reconstruit les 4 732 clauses du fichier certifié à partir des six colonnes, des cinq portes et de la table de sortie. Le 27 novembre, [CheckFiveGateCNF.lean](CheckFiveGateCNF.lean) a comparé l'écriture DIMACS de cette formule au fichier publié, identique octet par octet. Un en-tête modifié a été rejeté.
+
+Lean a vérifié `allocated` (la numérotation de toutes les variables de 1 à 616), `one_complete` (les bits auxiliaires du compteur décrivent si le choix a déjà été rencontré) et `selector_blocks`. Pour chaque trace de calcul satisfaisant les hypothèses et chacune des cinq portes, la même affectation satisfait les trois blocs qui imposent un choix unique du fil gauche, du fil droit et de l’opération. La génération et la comparaison couvrent aussi les autres clauses. Pour la preuve d’impossibilité, il reste à démontrer leur satisfaction par cette affectation, à extraire la trace depuis le circuit normalisé et à assembler le certificat dans une preuve de l’énoncé exact.
+
+Pour reproduire la comparaison dans l’environnement Lake du projet, placer `TwoLitTables.olean` et `FiveGateCNF.olean` dans le chemin de modules, puis lancer `lean --run CheckFiveGateCNF.lean /tmp/L22882.cnf` sur le DIMACS décompressé.
