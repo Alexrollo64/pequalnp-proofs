@@ -147,5 +147,33 @@ theorem lower (k budget : Nat) (h : RepSizeAtMost (graph k) budget) :
   have six : (∑ i : Fin 8, score tests (2+i.val)) = 6 := by decide +kernel
   omega
 
+/-- A two-block witness, independently evaluated on all 100 promise inputs. -/
+def twoCircuit : Circuit :=
+  ⟨[⟨.or, [11, 12]⟩,
+    ⟨.or, [20, 13]⟩,
+    ⟨.or, [3, 4]⟩,
+    ⟨.and, [21, 22]⟩,
+    ⟨.and, [4, 14]⟩,
+    ⟨.or, [23, 24]⟩,
+    ⟨.and, [2, 10]⟩,
+    ⟨.or, [25, 26]⟩,
+    ⟨.or, [16, 17]⟩,
+    ⟨.or, [28, 18]⟩,
+    ⟨.or, [8, 9]⟩,
+    ⟨.and, [29, 30]⟩,
+    ⟨.and, [9, 19]⟩,
+    ⟨.or, [31, 32]⟩,
+    ⟨.and, [7, 15]⟩,
+    ⟨.or, [33, 34]⟩,
+    ⟨.or, [27, 35]⟩], 36⟩
+
+theorem upper_two : RepSizeAtMost (graph 2) 17 := by
+  refine ⟨twoCircuit,?_,by decide,by decide +kernel⟩
+  intro g hg
+  simp only [twoCircuit,List.mem_cons,List.not_mem_nil,or_false] at hg
+  rcases hg with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> simp
+
+#print axioms upper_two
+
 #print axioms lower
 end Alexrollo64.DisjointCopies
