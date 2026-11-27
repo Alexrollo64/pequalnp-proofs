@@ -272,3 +272,20 @@ Reproduction des recherches depuis ce dossier avec Python 3 et un compilateur C+
 - `python reference-repair.py` teste 6 130 880 descriptions de modifications de la référence à 17 portes (une suppression avec redirection globale et une réécriture binaire). Plusieurs descriptions peuvent produire le même circuit. Le minimum observé dans ce voisinage est une erreur.
 - `python rectangle-witnesses.py` cherche des couvertures de rectangles après inversion de chacune des 100 cases.
 - `g++ -O3 -std=c++17 block-formulas.cpp -o block-formulas && ./block-formulas` énumère les tables distinctes des formules de taille au plus sept sur une copie, y compris les dix configurations avec une seule entrée active. Ces scripts servent à trouver les témoins. Les résultats formels se reproduisent en compilant EdgeEdits.lean avec TreeCopies et ses dépendances dans le chemin des imports.
+
+### 27 novembre — Au moins 18 tests pour le budget de 16 portes
+
+[EighteenTests.lean](EighteenTests.lean) prouve que tout jeu de tests qui détecte chaque circuit ET/OU incorrect d’au plus 16 portes pour les deux copies doit contenir au moins 18 cases. [TestPacking.lean](TestPacking.lean) fournit 16 circuits dont les ensembles d’erreurs sont non vides et deux à deux disjoints. Dans chacun des deux blocs, trois paires d’erreurs imposent déjà trois choix de tests. Parmi huit autres circuits, il en reste toujours un dont les erreurs évitent ces trois choix. Il faut donc deux tests supplémentaires. Les témoins utilisent le type Circuit du projet. Compiler les fichiers dans l’ordre TreeCopies, EdgeEdits, TestPacking, EighteenTests, avec les imports du journal. Les contrôles d’axiomes de ces deux nouveaux théorèmes donnent propext, Classical.choice et Quot.sound.
+
+La définition `suite` fixe 18 cases. Lean vérifie que cette suite rencontre toutes les familles d’erreurs utilisées dans cette preuve. Pour les formules binaires sans partage, les programmes C++ calculent les coûts minimaux des 262 144 réponses possibles sur ces cases. La réponse du graphe est la seule ayant un coût de 17 portes. Toutes les autres sont réalisables avec 16 portes ou moins. Ce décompte exhaustif est vérifié par deux algorithmes indépendants. La certification Lean porte sur la borne de 18 tests et ses témoins. Pour reproduire le calcul des coûts :
+
+```bash
+g++ -std=c++17 -O3 suite-formula.cpp -o suite-formula
+g++ -std=c++17 -O3 verify-suite-costs.cpp -o verify-suite-costs
+./suite-formula costs.bin
+./verify-suite-costs costs.bin
+```
+
+Le premier programme compte les combinaisons à chaque coût par transformation zêta et inversion de Möbius. Le second vérifie pour chaque table le minimum sur toutes les décompositions possibles de la porte de sortie. Empreinte SHA-256 des 262 144 octets de coûts : `fc2975a6904b40fa7f344090be6bb8ddaee0a1c0440d419119a25f3c8d6c4d2c`.
+
+[refine-tests.py](refine-tests.py) cherche séparément des circuits avec partage. Il essaie des circuits binaires à opérandes distincts utilisant les 16 entrées brutes requises et toutes les portes intermédiaires. Chaque candidat SAT est rejoué sur les 100 cases avant d’ajouter sa première erreur à la suite. [refinement.jsonl](refinement.jsonl) part des six cases précédentes, trouve et élimine 20 candidats, puis atteint sa limite de 15 secondes sur 26 cases. [packing-refinement.jsonl](packing-refinement.jsonl) en élimine sept depuis une autre suite initiale de 16 cases, puis atteint sa limite de 25 secondes sur 23 cases. Le lancement direct sur les 18 cases publiées a atteint sa limite de 12 secondes sans verdict. Le budget général de 16 portes reste ouvert. La prochaine piste est d’exploiter le fait qu’un candidat exact à ce budget doit partager au moins un résultat intermédiaire, même pour satisfaire ces seules 18 cases.
